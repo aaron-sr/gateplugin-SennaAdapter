@@ -1,0 +1,5 @@
+<!-- creole.xml SennaAdapter -->
+
+<CREOLE-DIRECTORY>
+  <JAR SCAN="true">SennaAdapter.jar</JAR>
+</CREOLE-DIRECTORY>
