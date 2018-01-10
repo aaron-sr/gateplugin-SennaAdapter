@@ -43,12 +43,7 @@ public class Senna {
 	}
 
 	public void execute(final Document document) throws IOException, InterruptedException, ExecutionException {
-		System.out.println("###############################################");
-		System.out.println("complete sentences " + document.getSentences().size());
-		System.out.println("processes " + processes);
-
 		int sentencesPerSubdocument = (int) Math.ceil((double) document.getSentences().size() / processes);
-		System.out.println("sentencesPerSubdocument " + sentencesPerSubdocument);
 		Set<Future<?>> futures = new HashSet<>();
 
 		for (int subDocument = 0; subDocument < processes; subDocument++) {
@@ -70,8 +65,6 @@ public class Senna {
 				if (endSentenceIndex >= document.getSentences().size()) {
 					endSentenceIndex = document.getSentences().size() - 1;
 				}
-				System.out.println("startSentenceIndex " + startSentenceIndex);
-				System.out.println("endSentenceIndex " + endSentenceIndex);
 				Sentence startSentence = document.getSentences().get(startSentenceIndex);
 				Sentence endSentence = document.getSentences().get(endSentenceIndex);
 				DocumentBuilder.buildFrom(document, startSentence.getDocumentStart(), endSentence.getDocumentEnd());
