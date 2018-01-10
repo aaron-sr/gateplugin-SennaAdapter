@@ -16,9 +16,9 @@ public class Sentence extends SimpleMapping {
 		this(null, documentStart, documentEnd);
 	}
 
-	public Sentence(Integer documentAnnotationId, Integer documentStart, Integer documentEnd) {
+	public Sentence(Object documentId, Integer documentStart, Integer documentEnd) {
 		super(null);
-		this.documentAnnotationId = documentAnnotationId;
+		this.documentId = documentId;
 		this.documentStart = documentStart;
 		this.documentEnd = documentEnd;
 	}

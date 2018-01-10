@@ -2,21 +2,22 @@ package senna.mapping;
 
 public abstract class SimpleMapping implements Mapping {
 
-	protected Integer documentAnnotationId;
+	protected Object documentId;
 	protected Integer documentStart;
 	protected Integer documentEnd;
 
-	protected Document document;
+	protected Document sennaDocument;
 	protected Integer sennaStart;
 	protected Integer sennaEnd;
 
 	protected SimpleMapping(Document document) {
-		this.document = document;
+		this.sennaDocument = document;
 	}
 
 	@Override
-	public Integer getDocumentAnnotationId() {
-		return documentAnnotationId;
+	@SuppressWarnings("unchecked")
+	public <C> C getDocumentId() {
+		return (C) documentId;
 	}
 
 	@Override
@@ -31,12 +32,12 @@ public abstract class SimpleMapping implements Mapping {
 
 	@Override
 	public String getDocumentText() {
-		return document.documentText.substring(documentStart, documentEnd);
+		return sennaDocument.documentText.substring(documentStart, documentEnd);
 	}
 
 	@Override
 	public Document getSennaDocument() {
-		return document;
+		return sennaDocument;
 	}
 
 	@Override
@@ -51,7 +52,7 @@ public abstract class SimpleMapping implements Mapping {
 
 	@Override
 	public String getSennaText() {
-		return document.sennaText.substring(sennaStart, sennaEnd);
+		return sennaDocument.sennaText.substring(sennaStart, sennaEnd);
 	}
 
 }

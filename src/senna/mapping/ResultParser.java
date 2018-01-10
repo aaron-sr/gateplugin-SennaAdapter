@@ -108,7 +108,7 @@ public class ResultParser {
 				String psg = tokenData.get(tokenData.size() - 1);
 				features.put(Option.PSG, psg);
 			}
-			if (sentence.document.userTokens) {
+			if (sentence.sennaDocument.userTokens) {
 				Token token = sentence.tokens.get(tokenNumber);
 				token.features.putAll(features);
 				token.srlValues = srlValues;

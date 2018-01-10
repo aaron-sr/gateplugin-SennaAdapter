@@ -2,7 +2,7 @@ package senna.mapping;
 
 public interface Mapping {
 
-	Integer getDocumentAnnotationId();
+	<C> C getDocumentId();
 
 	Integer getDocumentStart();
 

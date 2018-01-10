@@ -13,16 +13,16 @@ public class Token extends SimpleMapping {
 	protected Map<Option<?>, String> features = new LinkedHashMap<Option<?>, String>();
 	protected List<String> srlValues;
 
-	public Token(Integer documentAnnotationId, Integer documentStart, Integer documentEnd) {
+	public Token(Object documentId, Integer documentStart, Integer documentEnd) {
 		super(null);
-		this.documentAnnotationId = documentAnnotationId;
+		this.documentId = documentId;
 		this.documentStart = documentStart;
 		this.documentEnd = documentEnd;
 	}
 
 	protected Token(Sentence sentence, Integer sennaStart, Integer sennaEnd, Integer documentStart,
 			Integer documentEnd) {
-		super(sentence.document);
+		super(sentence.sennaDocument);
 		this.sentence = sentence;
 		this.sentence.tokens.add(this);
 		this.sennaStart = sennaStart;

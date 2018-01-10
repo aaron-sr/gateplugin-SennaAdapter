@@ -1,6 +1,7 @@
 package senna;
 
 import java.io.File;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -10,19 +11,21 @@ import java.util.concurrent.Executors;
 
 import senna.mapping.MultiToken;
 
-public class SennaProcessBuilder {
+public class SennaBuilder {
 
 	private ExecutorService executor;
 	private File sennaFile;
 	private Set<CommandOption> commandOptions = new HashSet<CommandOption>();
 	private Set<Option<? extends MultiToken>> processOptions = new HashSet<Option<? extends MultiToken>>();
 	private Set<Option<? extends MultiToken>> parseOptions = new HashSet<Option<? extends MultiToken>>();
+	private Integer processes;
+	private OutputStream errorStream = System.err;
 
 	private static enum CommandOption {
 
 		/**
-		 * Display model informations (on the standard error output, so it does
-		 * not mess up the tag outputs).
+		 * Display model informations (on the standard error output, so it does not mess
+		 * up the tag outputs).
 		 */
 		VERBOSE("-verbose"),
 		/** Do not output tokens (first output column). */
@@ -36,23 +39,22 @@ public class SennaProcessBuilder {
 		/** Output 'bracket' tags instead of IOBES. */
 		BRACKET_TAGS("-brackettags"),
 		/**
-		 * Specify the path to the SENNA data/ and hash/ directories, if you do
-		 * not run SENNA in its original directory. The path must end by "/".
+		 * Specify the path to the SENNA data/ and hash/ directories, if you do not run
+		 * SENNA in its original directory. The path must end by "/".
 		 */
 		PATH("-path"),
 		/** Use user's tokens (space separated) instead of SENNA tokenizer. */
 		USER_TOKENS("-usrtokens"),
 		/**
-		 * Use verbs outputed by the POS tagger instead of SRL style verbs for
-		 * SRL task. You might want to use this, as the SRL training task ignore
-		 * some verbs (many "be" and "have") which might be not what you want.
+		 * Use verbs outputed by the POS tagger instead of SRL style verbs for SRL task.
+		 * You might want to use this, as the SRL training task ignore some verbs (many
+		 * "be" and "have") which might be not what you want.
 		 */
 		POS_VERBS("-posvbs"),
 		/**
-		 * Use user's verbs (given in <file>) instead of SENNA verbs for SRL
-		 * task. The file must contain one line per token, with an empty line
-		 * between each sentence. A line which is not a "-" corresponds to a
-		 * verb. -pos
+		 * Use user's verbs (given in <file>) instead of SENNA verbs for SRL task. The
+		 * file must contain one line per token, with an empty line between each
+		 * sentence. A line which is not a "-" corresponds to a verb. -pos
 		 */
 		USER_VERBS("-usrvbs"),
 		/** Part-of-Speech Tagging */
@@ -88,11 +90,12 @@ public class SennaProcessBuilder {
 
 	}
 
-	public SennaProcessBuilder(File sennaFile) {
+	public SennaBuilder(File sennaFile, Integer processes) {
 		this.sennaFile = sennaFile;
+		this.processes = processes;
 	}
 
-	public SennaProcess build() {
+	public Senna build() {
 		List<String> command = new ArrayList<String>();
 		command.add(sennaFile.getAbsolutePath());
 
@@ -108,19 +111,20 @@ public class SennaProcessBuilder {
 		boolean bracketTags = commandOptions.contains(CommandOption.BRACKET_TAGS)
 				&& !commandOptions.contains(CommandOption.IOB_TAGS);
 		ExecutorService executor = this.executor != null ? this.executor : Executors.newCachedThreadPool();
-		return new SennaProcess(executor, processBuilder, processOptions, parseOptions, bracketTags);
+		return new Senna(executor, processes, errorStream, processBuilder, processOptions, parseOptions, bracketTags);
 	}
 
-	public static SennaProcessBuilder forSennaFile(File sennaFile) {
-		return new SennaProcessBuilder(sennaFile);
+	public SennaBuilder withErrorStream(OutputStream errorStream) {
+		this.errorStream = errorStream;
+		return this;
 	}
 
-	public SennaProcessBuilder withExecutor(ExecutorService executor) {
+	public SennaBuilder withExecutor(ExecutorService executor) {
 		this.executor = executor;
 		return this;
 	}
 
-	public SennaProcessBuilder withIobTags(Boolean iobTags) {
+	public SennaBuilder withIobTags(Boolean iobTags) {
 		if (iobTags) {
 			commandOptions.add(CommandOption.IOB_TAGS);
 		} else {
@@ -129,7 +133,7 @@ public class SennaProcessBuilder {
 		return this;
 	}
 
-	public SennaProcessBuilder withBracketTags(Boolean bracketTags) {
+	public SennaBuilder withBracketTags(Boolean bracketTags) {
 		if (bracketTags) {
 			commandOptions.add(CommandOption.BRACKET_TAGS);
 		} else {
@@ -138,7 +142,7 @@ public class SennaProcessBuilder {
 		return this;
 	}
 
-	public SennaProcessBuilder withUserTokens(Boolean userTokens) {
+	public SennaBuilder withUserTokens(Boolean userTokens) {
 		if (userTokens) {
 			commandOptions.add(CommandOption.USER_TOKENS);
 		} else {
@@ -147,7 +151,7 @@ public class SennaProcessBuilder {
 		return this;
 	}
 
-	public SennaProcessBuilder withPosVerbs(Boolean posVerbs) {
+	public SennaBuilder withPosVerbs(Boolean posVerbs) {
 		if (posVerbs) {
 			commandOptions.add(CommandOption.POS_VERBS);
 		} else {
@@ -156,7 +160,7 @@ public class SennaProcessBuilder {
 		return this;
 	}
 
-	public SennaProcessBuilder withUserVerbs(File file) {
+	public SennaBuilder withUserVerbs(File file) {
 		if (file != null) {
 			commandOptions.add(CommandOption.USER_VERBS.withFile(file));
 		} else {
@@ -165,7 +169,7 @@ public class SennaProcessBuilder {
 		return this;
 	}
 
-	public SennaProcessBuilder outputPos(Boolean executePos) {
+	public SennaBuilder outputPos(Boolean executePos) {
 		if (executePos) {
 			commandOptions.add(CommandOption.POS);
 			processOptions.add(Option.POS);
@@ -176,7 +180,7 @@ public class SennaProcessBuilder {
 		return this;
 	}
 
-	public SennaProcessBuilder outputChk(Boolean executeChk) {
+	public SennaBuilder outputChk(Boolean executeChk) {
 		if (executeChk) {
 			commandOptions.add(CommandOption.CHK);
 			processOptions.add(Option.CHK);
@@ -187,7 +191,7 @@ public class SennaProcessBuilder {
 		return this;
 	}
 
-	public SennaProcessBuilder outputNer(Boolean executeNer) {
+	public SennaBuilder outputNer(Boolean executeNer) {
 		if (executeNer) {
 			commandOptions.add(CommandOption.NER);
 			processOptions.add(Option.NER);
@@ -198,7 +202,7 @@ public class SennaProcessBuilder {
 		return this;
 	}
 
-	public SennaProcessBuilder outputSrl(Boolean executeSrl) {
+	public SennaBuilder outputSrl(Boolean executeSrl) {
 		if (executeSrl) {
 			commandOptions.add(CommandOption.SRL);
 			processOptions.add(Option.SRL);
@@ -209,7 +213,7 @@ public class SennaProcessBuilder {
 		return this;
 	}
 
-	public SennaProcessBuilder outputPsg(Boolean executePsg) {
+	public SennaBuilder outputPsg(Boolean executePsg) {
 		if (executePsg) {
 			commandOptions.add(CommandOption.PSG);
 			processOptions.add(Option.PSG);
@@ -220,7 +224,7 @@ public class SennaProcessBuilder {
 		return this;
 	}
 
-	public SennaProcessBuilder parseChk(Boolean parseChk) {
+	public SennaBuilder parseChk(Boolean parseChk) {
 		if (parseChk) {
 			parseOptions.add(Option.CHK);
 		} else {
@@ -229,7 +233,7 @@ public class SennaProcessBuilder {
 		return this;
 	}
 
-	public SennaProcessBuilder parseNer(Boolean parseNer) {
+	public SennaBuilder parseNer(Boolean parseNer) {
 		if (parseNer) {
 			parseOptions.add(Option.NER);
 		} else {
@@ -238,7 +242,7 @@ public class SennaProcessBuilder {
 		return this;
 	}
 
-	public SennaProcessBuilder parseSrl(Boolean parseSrl) {
+	public SennaBuilder parseSrl(Boolean parseSrl) {
 		if (parseSrl) {
 			parseOptions.add(Option.SRL);
 		} else {
@@ -247,7 +251,7 @@ public class SennaProcessBuilder {
 		return this;
 	}
 
-	public SennaProcessBuilder parsePsg(Boolean parsePsg) {
+	public SennaBuilder parsePsg(Boolean parsePsg) {
 		if (parsePsg) {
 			parseOptions.add(Option.PSG);
 		} else {

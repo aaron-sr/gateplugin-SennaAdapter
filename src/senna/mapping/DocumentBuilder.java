@@ -45,6 +45,25 @@ public class DocumentBuilder {
 		return document;
 	}
 
+	public static Document buildFrom(Document document, Integer documentStart, Integer documentEnd) {
+		Collection<Sentence> sentences = new ArrayList<>();
+		Collection<Token> tokens = new ArrayList<>();
+		for (Sentence sentence : document.sentences) {
+			if (sentence.documentStart >= documentStart && sentence.documentEnd < documentEnd) {
+				sentences.add(new Sentence(sentence.documentId, sentence.documentStart - documentStart,
+						sentence.documentEnd - documentStart));
+				if (document.userTokens) {
+					for (Token token : sentence.tokens) {
+						tokens.add(new Token(token.documentId, token.documentStart - documentStart,
+								token.documentEnd - documentStart));
+					}
+				}
+			}
+		}
+		return buildFrom(document.documentOffet + documentStart,
+				document.documentText.substring(documentStart, documentEnd), sentences, document.userTokens, tokens);
+	}
+
 	private static void checkOffsets(Integer documentLength, Collection<? extends Mapping> mappings) {
 		for (Mapping mapping : mappings) {
 			if (mapping.getDocumentStart() < 0 || mapping.getDocumentStart() > documentLength

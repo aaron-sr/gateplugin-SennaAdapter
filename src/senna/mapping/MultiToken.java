@@ -32,7 +32,7 @@ public class MultiToken implements Mapping {
 	}
 
 	@Override
-	public Integer getDocumentAnnotationId() {
+	public Integer getDocumentId() {
 		throw new UnsupportedOperationException();
 	}
 
@@ -48,12 +48,12 @@ public class MultiToken implements Mapping {
 
 	@Override
 	public String getDocumentText() {
-		return sentence.document.documentText.substring(startToken.documentStart, endToken.documentEnd);
+		return sentence.sennaDocument.documentText.substring(startToken.documentStart, endToken.documentEnd);
 	}
 
 	@Override
 	public Document getSennaDocument() {
-		return sentence.document;
+		return sentence.sennaDocument;
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public class MultiToken implements Mapping {
 
 	@Override
 	public String getSennaText() {
-		return sentence.document.sennaText.substring(startToken.sennaStart, endToken.sennaEnd);
+		return sentence.sennaDocument.sennaText.substring(startToken.sennaStart, endToken.sennaEnd);
 	}
 
 }

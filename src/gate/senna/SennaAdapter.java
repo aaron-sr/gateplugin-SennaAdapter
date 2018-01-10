@@ -29,8 +29,8 @@ import gate.creole.metadata.Optional;
 import gate.creole.metadata.RunTime;
 import gate.util.InvalidOffsetException;
 import senna.Option;
-import senna.SennaProcess;
-import senna.SennaProcessBuilder;
+import senna.Senna;
+import senna.SennaBuilder;
 import senna.mapping.Document;
 import senna.mapping.DocumentBuilder;
 import senna.mapping.MultiToken;
@@ -72,6 +72,7 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 	private static final String RELATION_SRL_NAME = "SRL";
 
 	private URL executableFile;
+	private Integer parallelProcesses;
 
 	private Boolean iobTags;
 	private Boolean bracketTags;
@@ -190,7 +191,7 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 
 	protected void executeSenna(final Document document, AnnotationSet outputAnnotationSet) throws Exception {
 
-		SennaProcessBuilder builder = new SennaProcessBuilder(urlToFile(executableFile));
+		SennaBuilder builder = new SennaBuilder(urlToFile(executableFile), parallelProcesses);
 		builder.withIobTags(iobTags);
 		builder.withBracketTags(bracketTags);
 		builder.withUserTokens(hasValue(inputTokenType));
@@ -210,7 +211,7 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 		builder.parseSrl(outputSRLAnnotations);
 		builder.parsePsg(outputPSGAnnotations);
 
-		SennaProcess process = builder.build();
+		Senna process = builder.build();
 		process.execute(document);
 
 		addAnnotations(document, outputAnnotationSet);
@@ -226,8 +227,8 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 			for (Token token : sentence.getTokens()) {
 				FeatureMap map = extractFeaturesToMap(token);
 				Annotation annotation = null;
-				if (token.getDocumentAnnotationId() != null) {
-					annotation = outputAnnotationSet.get(token.getDocumentAnnotationId());
+				if (token.getDocumentId() != null) {
+					annotation = outputAnnotationSet.get((Integer) token.getDocumentId());
 					annotation.getFeatures().putAll(map);
 				} else {
 					Long start = document.getDocumentOffet()
@@ -375,6 +376,17 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 
 	public URL getExecutableFile() {
 		return executableFile;
+	}
+
+	@Optional
+	@RunTime
+	@CreoleParameter(comment = "Run # senna processes in parallel", defaultValue = "1")
+	public void setParallelProcesses(Integer parallelProcesses) {
+		this.parallelProcesses = parallelProcesses;
+	}
+
+	public Integer getParallelProcesses() {
+		return parallelProcesses;
 	}
 
 	@Optional
