@@ -10,7 +10,7 @@ public class Token extends SimpleMapping {
 
 	protected Sentence sentence;
 
-	protected Map<Option<?>, String> features = new LinkedHashMap<Option<?>, String>();
+	protected Map<Option<?>, String> features = new LinkedHashMap<>();
 	protected List<String> srlValues;
 
 	public Token(Object documentId, Integer documentStart, Integer documentEnd) {
@@ -61,6 +61,10 @@ public class Token extends SimpleMapping {
 
 	public String getFeature(Option<? extends MultiToken> option) {
 		return features.get(option);
+	}
+
+	public String getSrlValue(Integer verbNumber) {
+		return srlValues.get(verbNumber);
 	}
 
 }

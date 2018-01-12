@@ -7,7 +7,7 @@ import senna.Option;
 
 public class SrlVerbToken extends MultiToken {
 
-	protected List<SrlArgumentToken> arguments = new ArrayList<SrlArgumentToken>();
+	protected List<SrlArgumentToken> arguments = new ArrayList<>();
 
 	protected SrlVerbToken(Sentence sentence, String type, Token startToken, Token endToken) {
 		super(sentence, Option.SRL, type, startToken, endToken);

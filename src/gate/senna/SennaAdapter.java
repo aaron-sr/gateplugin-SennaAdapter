@@ -119,8 +119,8 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 
 	private void executeContent(DocumentContent documentContent, AnnotationSet inputAnnotationSet,
 			AnnotationSet outputAnnotationSet) throws Exception {
-		List<Sentence> sentences = new ArrayList<Sentence>();
-		List<Token> tokens = new ArrayList<Token>();
+		List<Sentence> sentences = new ArrayList<>();
+		List<Token> tokens = new ArrayList<>();
 		boolean userTokens = hasValue(inputTokenType);
 		boolean reuseAnnotations = equals(inputASName, outputASName);
 		if (hasValue(inputSentenceType)) {
@@ -141,8 +141,8 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 
 					documentOffset = lastSentenceEnd;
 
-					sentences = new ArrayList<Sentence>();
-					tokens = new ArrayList<Token>();
+					sentences = new ArrayList<>();
+					tokens = new ArrayList<>();
 				}
 
 				Integer id = reuseAnnotations ? sentenceAnnotation.getId() : null;
@@ -176,7 +176,7 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 
 	private List<Token> buildTokens(Long documentOffset, AnnotationSet inputAnnotationSet, Long sentenceStart,
 			Long sentenceEnd, boolean reuseAnnotations) {
-		List<Token> tokens = new ArrayList<Token>();
+		List<Token> tokens = new ArrayList<>();
 		AnnotationSet inputTokenSet = inputAnnotationSet.get(inputTokenType, sentenceStart, sentenceEnd);
 		Iterator<Annotation> tokenAnnotationIterator = inputTokenSet.iterator();
 		while (tokenAnnotationIterator.hasNext()) {
@@ -284,7 +284,7 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 		Long offset = document.getDocumentOffet();
 		for (Sentence sentence : document.getSentences()) {
 			for (SrlVerbToken verb : sentence.geMultiTokens(SRL)) {
-				List<Integer> relationIds = new ArrayList<Integer>();
+				List<Integer> relationIds = new ArrayList<>();
 
 				DocumentContent verbText = this.document.getContent().getContent(offset + verb.getDocumentStart(),
 						offset + verb.getDocumentEnd());
@@ -330,7 +330,7 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 
 	protected List<Integer> addPsgAnnotations(Integer parentId, List<PsgToken> tokens,
 			AnnotationSet outputAnnotationSet, Long offset) throws InvalidOffsetException {
-		List<Integer> ids = new ArrayList<Integer>();
+		List<Integer> ids = new ArrayList<>();
 		for (PsgToken token : tokens) {
 			FeatureMap features = Factory.newFeatureMap();
 			features.put(ANNOTATION_PSG_FEATURE_NAME, token.getType());

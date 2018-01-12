@@ -60,18 +60,19 @@ public class ResultParser {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void parse(Document document, InputStream inputStream,
 			Collection<Option<? extends MultiToken>> options) throws IOException {
-
 		List sortedOptions = Util.sort((Collection) options);
 		int sentenceNumber = 0;
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 		String line;
-		List<String> lines = new ArrayList<String>();
+		List<String> lines = new ArrayList<>();
 		while ((line = reader.readLine()) != null) {
 			if (line.length() > 0) {
 				lines.add(line);
 			} else {
-				Sentence sentence = document.getSentences().get(sentenceNumber++);
-				parseSentence(sentence, lines, sortedOptions);
+				if (sentenceNumber < document.getSentences().size()) {
+					Sentence sentence = document.getSentences().get(sentenceNumber++);
+					parseSentence(sentence, lines, sortedOptions);
+				}
 				lines.clear();
 			}
 		}
@@ -79,15 +80,15 @@ public class ResultParser {
 
 	protected static void parseSentence(Sentence sentence, List<String> lines,
 			List<Option<? extends MultiToken>> options) {
-		List<List<String>> sentenceData = new ArrayList<List<String>>();
+		List<List<String>> sentenceData = new ArrayList<>();
 		for (String line : lines) {
-			sentenceData.add(Util.readColumnLine(line, COLUMN_SPLIT_PATTERN));
+			sentenceData.add(Arrays.asList(line.trim().split("\\s+")));
 		}
 		boolean hasPsg = options.contains(Option.PSG);
 		for (int tokenNumber = 0; tokenNumber < sentenceData.size(); tokenNumber++) {
 			List<String> tokenData = sentenceData.get(tokenNumber);
-			Map<Option<? extends MultiToken>, String> features = new LinkedHashMap<Option<? extends MultiToken>, String>();
-			List<String> srlValues = new ArrayList<String>();
+			Map<Option<? extends MultiToken>, String> features = new LinkedHashMap<>();
+			List<String> srlValues = new ArrayList<>();
 			for (int columnNumber = END_COLUMN + 1, optionNumber = 0; columnNumber < tokenData.size()
 					&& optionNumber < options.size(); columnNumber++, optionNumber++) {
 				Option<? extends MultiToken> option = options.get(optionNumber);
@@ -118,6 +119,7 @@ public class ResultParser {
 				Integer end = Integer.parseInt(tokenData.get(END_COLUMN));
 				Token token = new Token(sentence, sentence.sennaStart + start, sentence.sennaStart + end,
 						sentence.documentStart + start, sentence.documentStart + end);
+				sentence.addToken(token);
 				token.features.putAll(features);
 				token.srlValues = srlValues;
 			}
@@ -137,7 +139,7 @@ public class ResultParser {
 						new ParserHelper<MultiToken>() {
 							@Override
 							public String getValue(Token token) {
-								return token.features.get(option);
+								return token.getFeature(option);
 							}
 
 							@Override
@@ -153,7 +155,7 @@ public class ResultParser {
 				List<PsgToken> multiTokens = extractBracketTokens(sentence, new ParserHelper<PsgToken>() {
 					@Override
 					public String getValue(Token token) {
-						return token.features.get(option);
+						return token.getFeature(option);
 					}
 
 					@Override
@@ -186,7 +188,7 @@ public class ResultParser {
 		Token firstToken = null;
 		Token previousToken = null;
 		String previousTokenIobValue = null;
-		List<T> tokens = new ArrayList<T>();
+		List<T> tokens = new ArrayList<>();
 		for (Token token : sentence.tokens) {
 			String iobValue = helper.getValue(token);
 			if (iobValue.contentEquals(IOB_OUTSIDE)) {
@@ -228,8 +230,8 @@ public class ResultParser {
 	}
 
 	private static <T extends MultiToken> List<T> extractBracketTokens(Sentence sentence, ParserHelper<T> helper) {
-		Deque<T> stack = new ArrayDeque<T>();
-		List<T> tokens = new ArrayList<T>();
+		Deque<T> stack = new ArrayDeque<>();
+		List<T> tokens = new ArrayList<>();
 		for (Token token : sentence.tokens) {
 			String value = helper.getValue(token);
 			List<String> bracketTags = Util.readColumnLine(value, BRACKETTAGS_SPLIT_PATTERN);
@@ -252,7 +254,7 @@ public class ResultParser {
 
 	private static void parseSrl(Document document, boolean bracketTags) {
 		for (Sentence sentence : document.sentences) {
-			List<SrlVerbToken> verbs = new ArrayList<SrlVerbToken>();
+			List<SrlVerbToken> verbs = new ArrayList<>();
 			Integer verbNumber = 0;
 			for (int tokenNumber = 0; tokenNumber < sentence.tokens.size(); tokenNumber++) {
 				Token token = sentence.tokens.get(tokenNumber);
@@ -278,7 +280,7 @@ public class ResultParser {
 
 			@Override
 			public String getValue(Token token) {
-				return token.srlValues.get(verbNumber);
+				return token.getSrlValue(verbNumber);
 			}
 
 			@Override

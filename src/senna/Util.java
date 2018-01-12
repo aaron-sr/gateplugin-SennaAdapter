@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 public class Util {
 
 	public static List<String> readColumnLine(String line, Pattern columnPattern) {
-		List<String> columns = new ArrayList<String>();
+		List<String> columns = new ArrayList<>();
 		readColumnLine(line, columnPattern, columns);
 		return columns;
 	}
@@ -29,7 +29,7 @@ public class Util {
 	}
 
 	public static <E extends Comparable<? super E>> List<E> sort(Collection<E> collection) {
-		List<E> list = new ArrayList<E>(collection);
+		List<E> list = new ArrayList<>(collection);
 		Collections.sort(list);
 		return list;
 	}

@@ -9,8 +9,8 @@ import senna.Option;
 
 public class Sentence extends SimpleMapping {
 
-	protected List<Token> tokens = new ArrayList<Token>();
-	protected Map<Option<? extends MultiToken>, List<? extends MultiToken>> multiTokens = new HashMap<Option<? extends MultiToken>, List<? extends MultiToken>>();
+	protected List<Token> tokens = new ArrayList<>();
+	protected Map<Option<? extends MultiToken>, List<? extends MultiToken>> multiTokens = new HashMap<>();
 
 	protected Sentence(Integer documentStart, Integer documentEnd) {
 		this(null, documentStart, documentEnd);

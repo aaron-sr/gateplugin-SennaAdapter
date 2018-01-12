@@ -15,9 +15,9 @@ public class SennaBuilder {
 
 	private ExecutorService executor;
 	private File sennaFile;
-	private Set<CommandOption> commandOptions = new HashSet<CommandOption>();
-	private Set<Option<? extends MultiToken>> processOptions = new HashSet<Option<? extends MultiToken>>();
-	private Set<Option<? extends MultiToken>> parseOptions = new HashSet<Option<? extends MultiToken>>();
+	private Set<CommandOption> commandOptions = new HashSet<>();
+	private Set<Option<? extends MultiToken>> processOptions = new HashSet<>();
+	private Set<Option<? extends MultiToken>> parseOptions = new HashSet<>();
 	private Integer processes;
 	private OutputStream errorStream = System.err;
 
@@ -96,7 +96,7 @@ public class SennaBuilder {
 	}
 
 	public Senna build() {
-		List<String> command = new ArrayList<String>();
+		List<String> command = new ArrayList<>();
 		command.add(sennaFile.getAbsolutePath());
 
 		commandOptions.add(CommandOption.OFFSET_TAGS);

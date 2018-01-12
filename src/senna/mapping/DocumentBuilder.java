@@ -5,7 +5,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DocumentBuilder {
 
@@ -37,31 +39,41 @@ public class DocumentBuilder {
 		}
 
 		Document document = new Document(documentOffset, documentText, sortedSentences, userTokens);
-
 		String sennaText = calculateSennaOffsets(sortedSentences, userTokens);
-
 		document.setSennaText(sennaText);
 
 		return document;
 	}
 
-	public static Document buildFrom(Document document, Integer documentStart, Integer documentEnd) {
-		Collection<Sentence> sentences = new ArrayList<>();
-		Collection<Token> tokens = new ArrayList<>();
+	public static SubDocument buildSubDocument(Document document, Sentence fromSentence, Sentence toSentence) {
+		List<Sentence> subSentences = new ArrayList<>();
+		Map<Sentence, Sentence> sentenceMapping = new LinkedHashMap<>();
+		Map<Token, Token> tokenMapping = new LinkedHashMap<>();
 		for (Sentence sentence : document.sentences) {
-			if (sentence.documentStart >= documentStart && sentence.documentEnd < documentEnd) {
-				sentences.add(new Sentence(sentence.documentId, sentence.documentStart - documentStart,
-						sentence.documentEnd - documentStart));
+			if (sentence.documentStart >= fromSentence.documentStart
+					&& sentence.documentEnd <= toSentence.documentEnd) {
+				Sentence subSentence = new Sentence(sentence.documentId,
+						sentence.documentStart - fromSentence.documentStart,
+						sentence.documentEnd - fromSentence.documentStart);
+				subSentences.add(subSentence);
+				sentenceMapping.put(subSentence, sentence);
 				if (document.userTokens) {
 					for (Token token : sentence.tokens) {
-						tokens.add(new Token(token.documentId, token.documentStart - documentStart,
-								token.documentEnd - documentStart));
+						Token subToken = new Token(token.documentId, token.documentStart - fromSentence.documentStart,
+								token.documentEnd - fromSentence.documentStart);
+						subSentence.tokens.add(subToken);
+						tokenMapping.put(subToken, token);
 					}
 				}
 			}
 		}
-		return buildFrom(document.documentOffet + documentStart,
-				document.documentText.substring(documentStart, documentEnd), sentences, document.userTokens, tokens);
+		SubDocument subDocument = new SubDocument(fromSentence.documentStart,
+				document.documentText.substring(fromSentence.documentStart, toSentence.documentEnd), subSentences,
+				document, sentenceMapping, tokenMapping);
+		String sennaText = calculateSennaOffsets(subSentences, document.userTokens);
+		subDocument.setSennaText(sennaText);
+
+		return subDocument;
 	}
 
 	private static void checkOffsets(Integer documentLength, Collection<? extends Mapping> mappings) {
@@ -119,7 +131,7 @@ public class DocumentBuilder {
 	}
 
 	private static List<Token> buildSortedTokens(Collection<Token> tokens) {
-		List<Token> sortedTokens = new ArrayList<Token>(tokens);
+		List<Token> sortedTokens = new ArrayList<>(tokens);
 		Collections.sort(sortedTokens, MAPPING_COMPARATOR);
 		return sortedTokens;
 	}
@@ -132,7 +144,7 @@ public class DocumentBuilder {
 	}
 
 	private static List<Sentence> buildSortedSentences(String documentText, Collection<Sentence> sentences) {
-		List<Sentence> sortedSentences = new ArrayList<Sentence>();
+		List<Sentence> sortedSentences = new ArrayList<>();
 		if (sentences != null && !sentences.isEmpty()) {
 			sortedSentences.addAll(sentences);
 			Collections.sort(sortedSentences, MAPPING_COMPARATOR);

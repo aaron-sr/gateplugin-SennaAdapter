@@ -8,7 +8,7 @@ import senna.Option;
 public class PsgToken extends MultiToken {
 
 	protected PsgToken parent;
-	protected List<PsgToken> children = new ArrayList<PsgToken>();
+	protected List<PsgToken> children = new ArrayList<>();
 
 	protected PsgToken(Sentence sentence, String type, Token startToken, PsgToken parent) {
 		super(sentence, Option.PSG, type, startToken, null);
