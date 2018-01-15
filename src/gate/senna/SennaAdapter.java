@@ -276,7 +276,7 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 			Option<? extends MultiToken> option, String annotationName, String featureName)
 			throws InvalidOffsetException {
 		for (Sentence sentence : document.getSentences()) {
-			for (MultiToken token : sentence.geMultiTokens(option)) {
+			for (MultiToken token : sentence.getMultiTokens(option)) {
 				FeatureMap features = Factory.newFeatureMap();
 				features.put(featureName, token.getType());
 				outputAnnotationSet.add(documentOffset + token.getDocumentStart(),
@@ -288,7 +288,7 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 	protected void addSrlAnnotations(Long documentOffset, Document document, AnnotationSet outputAnnotationSet)
 			throws InvalidOffsetException {
 		for (Sentence sentence : document.getSentences()) {
-			for (SrlVerbToken verb : sentence.geMultiTokens(SRL)) {
+			for (SrlVerbToken verb : sentence.getMultiTokens(SRL)) {
 				List<Integer> relationIds = new ArrayList<>();
 
 				DocumentContent verbText = this.document.getContent()
@@ -328,7 +328,7 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 	protected void addPsgAnnotations(Long documentOffset, Document document, AnnotationSet outputAnnotationSet)
 			throws InvalidOffsetException {
 		for (Sentence sentence : document.getSentences()) {
-			addPsgAnnotations(null, sentence.geMultiTokens(PSG), outputAnnotationSet, documentOffset);
+			addPsgAnnotations(null, sentence.getMultiTokens(PSG), outputAnnotationSet, documentOffset);
 		}
 	}
 

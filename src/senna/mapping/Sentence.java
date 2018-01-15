@@ -38,7 +38,7 @@ public class Sentence extends SimpleMapping {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends MultiToken> List<T> geMultiTokens(Option<T> option) {
+	public <T extends MultiToken> List<T> getMultiTokens(Option<T> option) {
 		return (List<T>) multiTokens.get(option);
 	}
 
