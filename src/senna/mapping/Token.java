@@ -7,6 +7,7 @@ import java.util.Map;
 import senna.Option;
 
 public class Token extends SimpleMapping {
+	private static final long serialVersionUID = 1L;
 
 	protected Sentence sentence;
 

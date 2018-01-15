@@ -1,6 +1,7 @@
 package senna.mapping;
 
 public abstract class SimpleMapping implements Mapping {
+	private static final long serialVersionUID = 1L;
 
 	protected Object documentId;
 	protected Integer documentStart;
@@ -14,7 +15,6 @@ public abstract class SimpleMapping implements Mapping {
 		this.sennaDocument = document;
 	}
 
-	@Override
 	@SuppressWarnings("unchecked")
 	public <C> C getDocumentId() {
 		return (C) documentId;

@@ -8,19 +8,29 @@ import java.util.Map;
 import senna.Option;
 
 public class Sentence extends SimpleMapping {
+	private static final long serialVersionUID = 1L;
 
 	protected List<Token> tokens = new ArrayList<>();
 	protected Map<Option<? extends MultiToken>, List<? extends MultiToken>> multiTokens = new HashMap<>();
-
-	protected Sentence(Integer documentStart, Integer documentEnd) {
-		this(null, documentStart, documentEnd);
-	}
 
 	public Sentence(Object documentId, Integer documentStart, Integer documentEnd) {
 		super(null);
 		this.documentId = documentId;
 		this.documentStart = documentStart;
 		this.documentEnd = documentEnd;
+	}
+
+	public Sentence(Object documentId, Integer documentStart, Integer documentEnd, List<Token> tokens) {
+		super(null);
+		this.documentId = documentId;
+		this.documentStart = documentStart;
+		this.documentEnd = documentEnd;
+
+		this.tokens = DocumentBuilder.sort(tokens);
+
+		for (Token token : this.tokens) {
+			token.sentence = this;
+		}
 	}
 
 	public List<Token> getTokens() {

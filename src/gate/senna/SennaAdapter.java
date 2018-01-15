@@ -32,7 +32,6 @@ import senna.Option;
 import senna.Senna;
 import senna.SennaBuilder;
 import senna.mapping.Document;
-import senna.mapping.DocumentBuilder;
 import senna.mapping.MultiToken;
 import senna.mapping.PsgToken;
 import senna.mapping.Sentence;
@@ -120,7 +119,6 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 	private void executeContent(DocumentContent documentContent, AnnotationSet inputAnnotationSet,
 			AnnotationSet outputAnnotationSet) throws Exception {
 		List<Sentence> sentences = new ArrayList<>();
-		List<Token> tokens = new ArrayList<>();
 		boolean userTokens = hasValue(inputTokenType);
 		boolean reuseAnnotations = equals(inputASName, outputASName);
 		if (hasValue(inputSentenceType)) {
@@ -135,40 +133,45 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 
 				if ((sentenceEnd - documentOffset) > MAX_INPUT_LENGTH.longValue()) {
 					String documentText = documentContent.getContent(documentOffset, lastSentenceEnd).toString();
-					Document document = DocumentBuilder.buildFrom(documentOffset, documentText, sentences, userTokens,
-							tokens);
-					executeSenna(document, outputAnnotationSet);
+					Document document = new Document(documentText, sentences);
+					executeSenna(documentOffset, document, outputAnnotationSet);
 
 					documentOffset = lastSentenceEnd;
 
 					sentences = new ArrayList<>();
-					tokens = new ArrayList<>();
 				}
 
 				Integer id = reuseAnnotations ? sentenceAnnotation.getId() : null;
 				int documentStart = (int) (sentenceStart - documentOffset);
 				int documentEnd = (int) (sentenceEnd - documentOffset);
-				sentences.add(new Sentence(id, documentStart, documentEnd));
+				Sentence sentence;
 				if (userTokens) {
-					tokens.addAll(buildTokens(documentOffset, inputAnnotationSet, sentenceStart, sentenceEnd,
-							reuseAnnotations));
+					List<Token> tokens = buildTokens(documentOffset, inputAnnotationSet, sentenceStart, sentenceEnd,
+							reuseAnnotations);
+					sentence = new Sentence(id, documentStart, documentEnd, tokens);
+				} else {
+					sentence = new Sentence(id, documentStart, documentEnd);
 				}
+				sentences.add(sentence);
 				lastSentenceEnd = sentenceEnd;
 			}
 			if (!sentences.isEmpty()) {
 				String documentText = documentContent.getContent(documentOffset, lastSentenceEnd).toString();
-				Document sennaDocument = DocumentBuilder.buildFrom(documentOffset, documentText, sentences, userTokens,
-						tokens);
-				executeSenna(sennaDocument, outputAnnotationSet);
+				Document sennaDocument = new Document(documentText, sentences);
+				executeSenna(documentOffset, sennaDocument, outputAnnotationSet);
 			}
 		} else if (documentContent.size() < MAX_INPUT_LENGTH.longValue()) {
-			sentences.add(new Sentence(null, 0, documentContent.size().intValue()));
+			Sentence sentence;
 			if (userTokens) {
-				tokens.addAll(buildTokens(0l, inputAnnotationSet, 0l, documentContent.size(), reuseAnnotations));
+				List<Token> tokens = buildTokens(0l, inputAnnotationSet, 0l, documentContent.size(), reuseAnnotations);
+				sentence = new Sentence(null, 0, documentContent.size().intValue(), tokens);
+			} else {
+				sentence = new Sentence(null, 0, documentContent.size().intValue());
 			}
-			Document sennaDocument = DocumentBuilder.buildFrom(0l,
-					documentContent.getContent(0l, documentContent.size()).toString(), sentences, userTokens, tokens);
-			executeSenna(sennaDocument, outputAnnotationSet);
+			sentences.add(sentence);
+			Document sennaDocument = new Document(documentContent.getContent(0l, documentContent.size()).toString(),
+					sentences);
+			executeSenna(0l, sennaDocument, outputAnnotationSet);
 		} else {
 			throw new IllegalStateException();
 		}
@@ -189,7 +192,8 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 		return tokens;
 	}
 
-	protected void executeSenna(final Document document, AnnotationSet outputAnnotationSet) throws Exception {
+	protected void executeSenna(Long documentOffset, final Document document, AnnotationSet outputAnnotationSet)
+			throws Exception {
 
 		SennaBuilder builder = new SennaBuilder(urlToFile(executableFile), parallelProcesses);
 		builder.withIobTags(iobTags);
@@ -214,15 +218,18 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 		Senna process = builder.build();
 		process.execute(document);
 
-		addAnnotations(document, outputAnnotationSet);
-		addAnnotations(document, outputAnnotationSet, CHK, ANNOTATION_CHK_NAME, ANNOTATION_CHK_FEATURE_NAME);
-		addAnnotations(document, outputAnnotationSet, NER, ANNOTATION_NER_NAME, ANNOTATION_NER_FEATURE_NAME);
-		addSrlAnnotations(document, outputAnnotationSet);
-		addPsgAnnotations(document, outputAnnotationSet);
+		addAnnotations(documentOffset, document, outputAnnotationSet);
+		addAnnotations(documentOffset, document, outputAnnotationSet, CHK, ANNOTATION_CHK_NAME,
+				ANNOTATION_CHK_FEATURE_NAME);
+		addAnnotations(documentOffset, document, outputAnnotationSet, NER, ANNOTATION_NER_NAME,
+				ANNOTATION_NER_FEATURE_NAME);
+		addSrlAnnotations(documentOffset, document, outputAnnotationSet);
+		addPsgAnnotations(documentOffset, document, outputAnnotationSet);
 
 	}
 
-	protected void addAnnotations(Document document, AnnotationSet outputAnnotationSet) throws InvalidOffsetException {
+	protected void addAnnotations(Long documentOffset, Document document, AnnotationSet outputAnnotationSet)
+			throws InvalidOffsetException {
 		for (Sentence sentence : document.getSentences()) {
 			for (Token token : sentence.getTokens()) {
 				FeatureMap map = extractFeaturesToMap(token);
@@ -231,9 +238,9 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 					annotation = outputAnnotationSet.get((Integer) token.getDocumentId());
 					annotation.getFeatures().putAll(map);
 				} else {
-					Long start = document.getDocumentOffet()
+					Long start = documentOffset
 							+ (token.getDocumentStart() != null ? token.getDocumentStart() : token.getSennaStart());
-					Long end = document.getDocumentOffet()
+					Long end = documentOffset
 							+ (token.getDocumentEnd() != null ? token.getDocumentEnd() : token.getSennaEnd());
 					outputAnnotationSet.add(start, end, ANNOTATION_TOKEN_NAME, map);
 				}
@@ -265,37 +272,35 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 		return map;
 	}
 
-	protected void addAnnotations(Document document, AnnotationSet outputAnnotationSet,
+	protected void addAnnotations(Long documentOffset, Document document, AnnotationSet outputAnnotationSet,
 			Option<? extends MultiToken> option, String annotationName, String featureName)
 			throws InvalidOffsetException {
-		Long offset = document.getDocumentOffet();
 		for (Sentence sentence : document.getSentences()) {
 			for (MultiToken token : sentence.geMultiTokens(option)) {
 				FeatureMap features = Factory.newFeatureMap();
 				features.put(featureName, token.getType());
-				outputAnnotationSet.add(offset + token.getDocumentStart(), offset + token.getDocumentEnd(),
-						annotationName, features);
+				outputAnnotationSet.add(documentOffset + token.getDocumentStart(),
+						documentOffset + token.getDocumentEnd(), annotationName, features);
 			}
 		}
 	}
 
-	protected void addSrlAnnotations(Document document, AnnotationSet outputAnnotationSet)
+	protected void addSrlAnnotations(Long documentOffset, Document document, AnnotationSet outputAnnotationSet)
 			throws InvalidOffsetException {
-		Long offset = document.getDocumentOffet();
 		for (Sentence sentence : document.getSentences()) {
 			for (SrlVerbToken verb : sentence.geMultiTokens(SRL)) {
 				List<Integer> relationIds = new ArrayList<>();
 
-				DocumentContent verbText = this.document.getContent().getContent(offset + verb.getDocumentStart(),
-						offset + verb.getDocumentEnd());
+				DocumentContent verbText = this.document.getContent()
+						.getContent(documentOffset + verb.getDocumentStart(), documentOffset + verb.getDocumentEnd());
 
 				FeatureMap verbFeatures = Factory.newFeatureMap();
 				verbFeatures.put(ANNOTATION_SRL_FEATURE_TYPE_NAME, verb.getType());
 				verbFeatures.put(ANNOTATION_SRL_FEATURE_VERB_NAME, verbText);
 
 				for (SrlArgumentToken argument : verb.getArguments()) {
-					DocumentContent argumentText = this.document.getContent()
-							.getContent(offset + argument.getDocumentStart(), offset + argument.getDocumentEnd());
+					DocumentContent argumentText = this.document.getContent().getContent(
+							documentOffset + argument.getDocumentStart(), documentOffset + argument.getDocumentEnd());
 					if (verbFeatures.get(argument.getType()) != null) {
 						verbFeatures.put(argument.getType(), verbFeatures.get(argument.getType())
 								+ ANNOTATION_SRL_FEATURE_ARGUMENT_JOIN + argumentText);
@@ -305,13 +310,13 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 					FeatureMap features = Factory.newFeatureMap();
 					features.put(ANNOTATION_SRL_FEATURE_TYPE_NAME, argument.getType());
 					features.put(ANNOTATION_SRL_FEATURE_VERB_NAME, verbText);
-					Integer argumentId = outputAnnotationSet.add(offset + argument.getDocumentStart(),
-							offset + argument.getDocumentEnd(), ANNOTATION_SRL_NAME, features);
+					Integer argumentId = outputAnnotationSet.add(documentOffset + argument.getDocumentStart(),
+							documentOffset + argument.getDocumentEnd(), ANNOTATION_SRL_NAME, features);
 					relationIds.add(argumentId);
 				}
 
-				Integer verbId = outputAnnotationSet.add(offset + verb.getDocumentStart(),
-						offset + verb.getDocumentEnd(), ANNOTATION_SRL_NAME, verbFeatures);
+				Integer verbId = outputAnnotationSet.add(documentOffset + verb.getDocumentStart(),
+						documentOffset + verb.getDocumentEnd(), ANNOTATION_SRL_NAME, verbFeatures);
 				if (!relationIds.isEmpty()) {
 					relationIds.add(0, verbId);
 					outputAnnotationSet.getRelations().addRelation(RELATION_SRL_NAME, toIntArray(relationIds));
@@ -320,11 +325,10 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 		}
 	}
 
-	protected void addPsgAnnotations(Document document, AnnotationSet outputAnnotationSet)
+	protected void addPsgAnnotations(Long documentOffset, Document document, AnnotationSet outputAnnotationSet)
 			throws InvalidOffsetException {
-		Long offset = document.getDocumentOffet();
 		for (Sentence sentence : document.getSentences()) {
-			addPsgAnnotations(null, sentence.geMultiTokens(PSG), outputAnnotationSet, offset);
+			addPsgAnnotations(null, sentence.geMultiTokens(PSG), outputAnnotationSet, documentOffset);
 		}
 	}
 

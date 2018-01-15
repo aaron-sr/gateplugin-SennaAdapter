@@ -15,7 +15,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import senna.mapping.Document;
-import senna.mapping.DocumentBuilder;
 import senna.mapping.MultiToken;
 import senna.mapping.ResultParser;
 import senna.mapping.Sentence;
@@ -91,7 +90,7 @@ public class Senna {
 			public Void call() throws Exception {
 				Sentence startSentence = document.getSentences().get(startSentenceIndex);
 				Sentence endSentence = document.getSentences().get(endSentenceIndex);
-				SubDocument subDocument = DocumentBuilder.buildSubDocument(document, startSentence, endSentence);
+				SubDocument subDocument = new SubDocument(document, startSentence, endSentence);
 				executeProcess(subDocument);
 				subDocument.mergeToOriginal();
 				return null;

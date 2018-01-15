@@ -1,38 +1,48 @@
 package senna.mapping;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Document extends SimpleMapping {
+	private static final long serialVersionUID = 1L;
 
-	protected Long documentOffet;
-	protected boolean userTokens;
-	protected List<Sentence> sentences;
 	protected String documentText;
+	protected List<Sentence> sentences;
+
+	protected boolean userTokens;
 	protected String sennaText;
 
-	protected Document(Long documentOffet, String documentText, List<Sentence> sentences, boolean userTokens) {
+	public Document(String documentText, List<Sentence> sentences) {
+		this(documentText);
+		setSentences(sentences);
+	}
+
+	protected Document(String documentText) {
 		super(null);
 		this.sennaDocument = this;
-		this.documentOffet = documentOffet;
 
 		this.documentText = documentText;
 		this.documentStart = 0;
 		this.documentEnd = documentText.length();
+	}
 
-		this.sentences = sentences;
+	protected void setSentences(List<Sentence> sentences) {
+		this.sentences = Collections.unmodifiableList(DocumentBuilder.sort(sentences));
+		this.userTokens = true;
 
-		for (Sentence sentence : sentences) {
+		for (Sentence sentence : this.sentences) {
 			sentence.sennaDocument = this;
-			for (Token token : sentence.tokens) {
-				token.sennaDocument = this;
+			if (sentence.tokens.isEmpty()) {
+				userTokens = false;
+			} else {
+				sentence.tokens = Collections.unmodifiableList(DocumentBuilder.sort(sentence.tokens));
+				for (Token token : sentence.tokens) {
+					token.sennaDocument = this;
+				}
 			}
 		}
 
-		this.userTokens = userTokens;
-	}
-
-	public Long getDocumentOffet() {
-		return documentOffet;
+		this.sennaText = DocumentBuilder.calculateSennaOffsets(this.sentences, this.userTokens);
 	}
 
 	public boolean isUserTokens() {

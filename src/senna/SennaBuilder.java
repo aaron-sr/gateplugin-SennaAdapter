@@ -124,7 +124,7 @@ public class SennaBuilder {
 		return this;
 	}
 
-	public SennaBuilder withIobTags(Boolean iobTags) {
+	public SennaBuilder withIobTags(boolean iobTags) {
 		if (iobTags) {
 			commandOptions.add(CommandOption.IOB_TAGS);
 		} else {
@@ -133,7 +133,7 @@ public class SennaBuilder {
 		return this;
 	}
 
-	public SennaBuilder withBracketTags(Boolean bracketTags) {
+	public SennaBuilder withBracketTags(boolean bracketTags) {
 		if (bracketTags) {
 			commandOptions.add(CommandOption.BRACKET_TAGS);
 		} else {
@@ -142,7 +142,7 @@ public class SennaBuilder {
 		return this;
 	}
 
-	public SennaBuilder withUserTokens(Boolean userTokens) {
+	public SennaBuilder withUserTokens(boolean userTokens) {
 		if (userTokens) {
 			commandOptions.add(CommandOption.USER_TOKENS);
 		} else {
@@ -151,7 +151,7 @@ public class SennaBuilder {
 		return this;
 	}
 
-	public SennaBuilder withPosVerbs(Boolean posVerbs) {
+	public SennaBuilder withPosVerbs(boolean posVerbs) {
 		if (posVerbs) {
 			commandOptions.add(CommandOption.POS_VERBS);
 		} else {
@@ -169,7 +169,7 @@ public class SennaBuilder {
 		return this;
 	}
 
-	public SennaBuilder outputPos(Boolean executePos) {
+	public SennaBuilder outputPos(boolean executePos) {
 		if (executePos) {
 			commandOptions.add(CommandOption.POS);
 			processOptions.add(Option.POS);
@@ -180,7 +180,7 @@ public class SennaBuilder {
 		return this;
 	}
 
-	public SennaBuilder outputChk(Boolean executeChk) {
+	public SennaBuilder outputChk(boolean executeChk) {
 		if (executeChk) {
 			commandOptions.add(CommandOption.CHK);
 			processOptions.add(Option.CHK);
@@ -191,7 +191,7 @@ public class SennaBuilder {
 		return this;
 	}
 
-	public SennaBuilder outputNer(Boolean executeNer) {
+	public SennaBuilder outputNer(boolean executeNer) {
 		if (executeNer) {
 			commandOptions.add(CommandOption.NER);
 			processOptions.add(Option.NER);
@@ -202,7 +202,7 @@ public class SennaBuilder {
 		return this;
 	}
 
-	public SennaBuilder outputSrl(Boolean executeSrl) {
+	public SennaBuilder outputSrl(boolean executeSrl) {
 		if (executeSrl) {
 			commandOptions.add(CommandOption.SRL);
 			processOptions.add(Option.SRL);
@@ -213,7 +213,7 @@ public class SennaBuilder {
 		return this;
 	}
 
-	public SennaBuilder outputPsg(Boolean executePsg) {
+	public SennaBuilder outputPsg(boolean executePsg) {
 		if (executePsg) {
 			commandOptions.add(CommandOption.PSG);
 			processOptions.add(Option.PSG);
@@ -224,7 +224,7 @@ public class SennaBuilder {
 		return this;
 	}
 
-	public SennaBuilder parseChk(Boolean parseChk) {
+	public SennaBuilder parseChk(boolean parseChk) {
 		if (parseChk) {
 			parseOptions.add(Option.CHK);
 		} else {
@@ -233,7 +233,7 @@ public class SennaBuilder {
 		return this;
 	}
 
-	public SennaBuilder parseNer(Boolean parseNer) {
+	public SennaBuilder parseNer(boolean parseNer) {
 		if (parseNer) {
 			parseOptions.add(Option.NER);
 		} else {
@@ -242,7 +242,7 @@ public class SennaBuilder {
 		return this;
 	}
 
-	public SennaBuilder parseSrl(Boolean parseSrl) {
+	public SennaBuilder parseSrl(boolean parseSrl) {
 		if (parseSrl) {
 			parseOptions.add(Option.SRL);
 		} else {
@@ -251,7 +251,7 @@ public class SennaBuilder {
 		return this;
 	}
 
-	public SennaBuilder parsePsg(Boolean parsePsg) {
+	public SennaBuilder parsePsg(boolean parsePsg) {
 		if (parsePsg) {
 			parseOptions.add(Option.PSG);
 		} else {

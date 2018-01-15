@@ -3,6 +3,7 @@ package senna.mapping;
 import senna.Option;
 
 public class MultiToken implements Mapping {
+	private static final long serialVersionUID = 1L;
 
 	protected Sentence sentence;
 	protected Option<? extends MultiToken> option;
@@ -29,11 +30,6 @@ public class MultiToken implements Mapping {
 
 	public String getType() {
 		return type;
-	}
-
-	@Override
-	public Integer getDocumentId() {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override

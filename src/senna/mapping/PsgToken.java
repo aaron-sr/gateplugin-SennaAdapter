@@ -6,6 +6,7 @@ import java.util.List;
 import senna.Option;
 
 public class PsgToken extends MultiToken {
+	private static final long serialVersionUID = 1L;
 
 	protected PsgToken parent;
 	protected List<PsgToken> children = new ArrayList<>();

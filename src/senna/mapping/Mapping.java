@@ -1,8 +1,8 @@
 package senna.mapping;
 
-public interface Mapping {
+import java.io.Serializable;
 
-	<C> C getDocumentId();
+public interface Mapping extends Serializable {
 
 	Integer getDocumentStart();
 
