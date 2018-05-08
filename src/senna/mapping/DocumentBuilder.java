@@ -25,15 +25,14 @@ public class DocumentBuilder {
 		}
 	};
 
-	protected static String calculateSennaOffsets(List<Sentence> sortedSentences, boolean userTokens) {
+	protected static void calculateSennaTextAndOffsets(Document document) {
 		StringBuilder sennaText = new StringBuilder();
 		Integer sentenceSennaOffset = 0;
 		Sentence previousSentence = null;
-		Iterator<Sentence> sentenceIterator = sortedSentences.iterator();
-		while (sentenceIterator.hasNext()) {
-			Sentence sentence = sentenceIterator.next();
+		for (Sentence sentence : document.sentences) {
 			StringBuilder sentenceSennaText = new StringBuilder();
-			if (userTokens) {
+			if (!sentence.tokens.isEmpty()) {
+				sentence.userTokens = true;
 				Integer tokenSennaOffset = sentenceSennaOffset;
 				Token previousToken = null;
 				Iterator<Token> tokenIterator = sentence.tokens.iterator();
@@ -53,6 +52,7 @@ public class DocumentBuilder {
 					previousToken = token;
 				}
 			} else {
+				sentence.userTokens = false;
 				sentenceSennaText.append(sentence.getDocumentText().replaceAll(SENNA_SENTENCESPLIT, ""));
 			}
 			if (previousSentence != null) {
@@ -69,7 +69,7 @@ public class DocumentBuilder {
 			sentenceSennaOffset = sentence.sennaEnd + SENNA_SENTENCESPLIT.length();
 			previousSentence = sentence;
 		}
-		return sennaText.toString();
+		document.sennaText = sennaText.toString();
 	}
 
 	protected static <M extends SimpleMapping> List<M> sort(Collection<M> mappings) {

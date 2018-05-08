@@ -25,7 +25,6 @@ public class Token extends SimpleMapping {
 			Integer documentEnd) {
 		super(sentence.sennaDocument);
 		this.sentence = sentence;
-		this.sentence.tokens.add(this);
 		this.sennaStart = sennaStart;
 		this.sennaEnd = sennaEnd;
 		this.documentStart = documentStart;

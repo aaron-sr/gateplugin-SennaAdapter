@@ -1,6 +1,5 @@
 package senna.mapping;
 
-import java.util.Collections;
 import java.util.List;
 
 public class Document extends SimpleMapping {
@@ -9,7 +8,6 @@ public class Document extends SimpleMapping {
 	protected String documentText;
 	protected List<Sentence> sentences;
 
-	protected boolean userTokens;
 	protected String sennaText;
 
 	public Document(String documentText, List<Sentence> sentences) {
@@ -27,26 +25,17 @@ public class Document extends SimpleMapping {
 	}
 
 	protected void setSentences(List<Sentence> sentences) {
-		this.sentences = Collections.unmodifiableList(DocumentBuilder.sort(sentences));
-		this.userTokens = true;
+		this.sentences = DocumentBuilder.sort(sentences);
 
 		for (Sentence sentence : this.sentences) {
 			sentence.sennaDocument = this;
-			if (sentence.tokens.isEmpty()) {
-				userTokens = false;
-			} else {
-				sentence.tokens = Collections.unmodifiableList(DocumentBuilder.sort(sentence.tokens));
-				for (Token token : sentence.tokens) {
-					token.sennaDocument = this;
-				}
+			sentence.tokens = DocumentBuilder.sort(sentence.tokens);
+			for (Token token : sentence.tokens) {
+				token.sennaDocument = this;
 			}
 		}
 
-		this.sennaText = DocumentBuilder.calculateSennaOffsets(this.sentences, this.userTokens);
-	}
-
-	public boolean isUserTokens() {
-		return userTokens;
+		DocumentBuilder.calculateSennaTextAndOffsets(this);
 	}
 
 	public List<Sentence> getSentences() {

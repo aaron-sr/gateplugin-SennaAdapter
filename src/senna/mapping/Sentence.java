@@ -12,6 +12,7 @@ public class Sentence extends SimpleMapping {
 
 	protected List<Token> tokens = new ArrayList<>();
 	protected Map<Option<? extends MultiToken>, List<? extends MultiToken>> multiTokens = new HashMap<>();
+	protected boolean userTokens;
 
 	public Sentence(Object documentId, Integer documentStart, Integer documentEnd) {
 		super(null);

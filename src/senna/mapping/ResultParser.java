@@ -109,7 +109,7 @@ public class ResultParser {
 				String psg = tokenData.get(tokenData.size() - 1);
 				features.put(Option.PSG, psg);
 			}
-			if (sentence.sennaDocument.userTokens) {
+			if (sentence.userTokens) {
 				Token token = sentence.tokens.get(tokenNumber);
 				token.features.putAll(features);
 				token.srlValues = srlValues;
@@ -260,14 +260,11 @@ public class ResultParser {
 				Token token = sentence.tokens.get(tokenNumber);
 				if (token.getFeature(Option.SRL).compareTo(SRL_NONVERB) != 0) {
 					SrlVerbToken verb = new SrlVerbToken(sentence, SRL_VERB_TYPE, token, token);
+					List<SrlArgumentToken> arguments = extractSrlVerbArguments(sentence, verbNumber, bracketTags);
+					verb.addArguments(arguments);
 					verbs.add(verb);
 					verbNumber++;
 				}
-			}
-			for (verbNumber = 0; verbNumber < verbs.size(); verbNumber++) {
-				SrlVerbToken verb = verbs.get(verbNumber);
-				List<SrlArgumentToken> arguments = extractSrlVerbArguments(sentence, verbNumber, bracketTags);
-				verb.addArguments(arguments);
 			}
 			sentence.multiTokens.put(Option.SRL, verbs);
 		}
