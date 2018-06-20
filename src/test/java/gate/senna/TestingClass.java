@@ -1,4 +1,4 @@
-package gate.stanfordnlp;
+package gate.senna;
 
 import gate.test.GATEPluginTests;
 import org.junit.Test;
