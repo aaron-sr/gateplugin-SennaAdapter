@@ -5,3 +5,5 @@
 /classes/
 /*.jar
 /.externalToolBuilders
+/target/
+/.settings/
