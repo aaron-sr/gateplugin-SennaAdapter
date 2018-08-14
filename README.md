@@ -1,9 +1,13 @@
-# gateplugin-SennaAdapter
-Integrate SENNA v3.0 into GATE
+gateplugin-SennaAdapter
+========================
 
-This is a java wrapper to execute SENNA (https://ronan.collobert.com/senna/), parse the STDOUT and add annotations to GATE as a Processing Resource.
+A plugin for the GATE language technology framework that provides a processing resource to integrate SENNA v3.0 (https://ronan.collobert.com/senna/)
 
-It does not bundle SENNA, as it has its own license (see https://ronan.collobert.com/senna/license.html).
+Current Features
+----------------
+* reusable java wrapper to execute SENNA and parse STDOUT, all command-line parameters are supported
+* multiprocessor architecture by splitting documents and run several SENNA instances in parallel
+* support predefined sentence and token annotations
+* support GATE 8.5.1 plugin architecture
 
-## Installation
-see [wiki](https://github.com/aaron-sr/gateplugin-SennaAdapter/wiki/Installation)
+Hint: It does not bundle SENNA, as it has its own license (see https://ronan.collobert.com/senna/license.html).
