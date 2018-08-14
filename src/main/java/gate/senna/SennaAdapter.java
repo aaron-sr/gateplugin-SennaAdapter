@@ -1,13 +1,12 @@
 package gate.senna;
 
+import static gate.util.Files.fileFromURL;
 import static senna.Option.CHK;
 import static senna.Option.NER;
 import static senna.Option.POS;
 import static senna.Option.PSG;
 import static senna.Option.SRL;
 
-import java.io.File;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -195,13 +194,13 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 	protected void executeSenna(Long documentOffset, final Document document, AnnotationSet outputAnnotationSet)
 			throws Exception {
 
-		SennaBuilder builder = new SennaBuilder(urlToFile(executableFile), parallelProcesses);
+		SennaBuilder builder = new SennaBuilder(fileFromURL(executableFile), parallelProcesses);
 		builder.withIobTags(iobTags);
 		builder.withBracketTags(bracketTags);
 		builder.withUserTokens(hasValue(inputTokenType));
 		builder.withPosVerbs(posVerbs);
 		if (verbsFile != null) {
-			builder.withUserVerbs(urlToFile(verbsFile));
+			builder.withUserVerbs(fileFromURL(verbsFile));
 		}
 
 		builder.outputPos(executePOS);
@@ -366,10 +365,6 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 		for (Integer e : list)
 			ret[i++] = e.intValue();
 		return ret;
-	}
-
-	private static File urlToFile(URL url) throws URISyntaxException {
-		return new File(url.toURI());
 	}
 
 	@Optional(false)
