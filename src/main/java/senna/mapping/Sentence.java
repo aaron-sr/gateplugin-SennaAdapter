@@ -1,6 +1,7 @@
 package senna.mapping;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class Sentence extends SimpleMapping {
 
 	@SuppressWarnings("unchecked")
 	public <T extends MultiToken> List<T> getMultiTokens(Option<T> option) {
-		return (List<T>) multiTokens.get(option);
+		return (List<T>) multiTokens.getOrDefault(option, Collections.emptyList());
 	}
 
 	protected void addToken(Token token) {
