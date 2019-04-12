@@ -99,11 +99,6 @@ public class SennaAdapter extends AbstractLanguageAnalyser {
 	}
 
 	@Override
-	public void reInit() throws ResourceInstantiationException {
-		init();
-	}
-
-	@Override
 	public void execute() throws ExecutionException {
 		AnnotationSet inputAnnotationSet = document.getAnnotations(inputASName);
 		AnnotationSet outputAnnotationSet = document.getAnnotations(outputASName);
